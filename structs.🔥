@@ -1,0 +1,24 @@
+'''
+Simple example of structs in Mojo
+'''
+
+struct Emoji:
+    var face: String
+    var emotion: String
+
+    fn __init__(inout self, face: String, emotion: String):
+        self.face = face
+        self.emotion = emotion
+
+    fn __str__(self) -> String:
+        return "face: " + self.face + "(" + self.emotion + ")"
+
+fn main():
+    let laughing = Emoji("😂", "laughing")
+    print(laughing.__str__())
+
+    let crying = Emoji("😭", "crying")
+    print(crying.__str__())
+
+    let angry = Emoji("😡", "angry")
+    print(angry.__str__())
