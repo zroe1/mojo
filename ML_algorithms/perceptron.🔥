@@ -20,21 +20,77 @@ struct Matrix:
         for i in range(self.rows):
             for j in range(self.cols):
                 self.values[i].store(j, value)
+
+    fn add(self, row: Int, col: Int, value: Float32):
+        self.values[row].store(col, value)
+
+    fn get(self, row: Int, col: Int) -> Float32:
+        return self.values[row].load(col)
     
     fn dump(self):
+        print_no_newline("[ ")
         for i in range(self.rows):
-            print_no_newline('[')
+            if i != 0:
+                print_no_newline("  ")
+            print_no_newline('[ ')
             for j in range(self.cols):
                 print_no_newline(self.values[i].load(j), " ")
-            print("]")
+            if i == self.rows - 1:
+                print("] ]")
+            else:
+                print("]")
+
+fn perceptron(inout xs: Matrix, inout ys: Matrix, inout theta: Matrix):
+    let T = 10
+    var mistakes = 0
+    for _ in range(T):
+        var done = True
+
+        # iterates over each input in the dataset
+        for i in range(xs.cols):
+            var output: Float32 = 0
+            for j in range(theta.cols):
+                output += theta.get(0, j) * xs.get(j, i)
+            
+            # checks for correct classification
+            if output * ys.get(0, i) <= 0:
+                for x_idx in range(xs.rows):
+                    let new_theta_val = theta.get(0, x_idx) + ys.get(0, i) * xs.get(x_idx, i)
+                    theta.add(0, x_idx, new_theta_val)
+                mistakes += 1
+                done = False
+        if done:
+            print("mistakes:", mistakes)
 
 fn main():
-    let matrix = Matrix(3, 3)
-    matrix.fill(5)
-    matrix.dump()
+    var xs = Matrix(3, 4)
+    var ys = Matrix(1, 4)
 
-    matrix.fill(25)
-    matrix.dump()
+    var theta = Matrix(1, 3)
+    theta.fill(0)
 
+    # Loads data
+    xs.add(0, 0, 2)
+    xs.add(1, 0, 9)
+    xs.add(0, 1, 5)
+    xs.add(1, 1, 7)
 
+    xs.add(0, 2, -3)
+    xs.add(1, 2, 0)
+    xs.add(0, 3, 4)
+    xs.add(1, 3, 2)
 
+    xs.add(2, 0, 1)
+    xs.add(2, 1, 1)
+    xs.add(2, 2, 1)
+    xs.add(2, 3, 1)
+
+    # Loads labels
+    ys.add(0, 0, 1)
+    ys.add(0, 1, 1)
+    ys.add(0, 2, -1)
+    ys.add(0, 3, -1)
+
+    perceptron(xs, ys, theta)
+    print("Theta:")
+    theta.dump()
