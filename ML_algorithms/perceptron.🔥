@@ -1,0 +1,40 @@
+from memory.unsafe import Pointer
+
+# I referenced the Mojo Documentation example of a heap array to construct this
+# struct. Original heap array code here: 
+# https://docs.modular.com/mojo/programming-manual.html
+struct Matrix:
+    var values: Pointer[DTypePointer[DType.float32]]
+    var rows: Int
+    var cols: Int
+
+    fn __init__(inout self, rows: Int, cols: Int):
+        self.rows = rows
+        self.cols = cols
+        self.values =Pointer[DTypePointer[DType.float32]].alloc(self.rows * self.cols)
+        for i in range(self.rows):
+            let row =DTypePointer[DType.float32].alloc(self.cols)
+            self.values.store(i, row)
+    
+    fn fill(self, value: Int):
+        for i in range(self.rows):
+            for j in range(self.cols):
+                self.values[i].store(j, value)
+    
+    fn dump(self):
+        for i in range(self.rows):
+            print_no_newline('[')
+            for j in range(self.cols):
+                print_no_newline(self.values[i].load(j), " ")
+            print("]")
+
+fn main():
+    let matrix = Matrix(3, 3)
+    matrix.fill(5)
+    matrix.dump()
+
+    matrix.fill(25)
+    matrix.dump()
+
+
+
